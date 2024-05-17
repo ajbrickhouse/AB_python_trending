@@ -1,0 +1,13 @@
+{
+    "device_number": "Blend B",
+    "trend_desc": "Phase 1",
+    "cycles": 99999,
+    "cycle_time": 1,
+    "buffer_size": 10,
+    "plc_ip": "192.168.0.1",
+    "tags": [
+        "BLD01_PIT01_00.SMTH",
+        "BLD01_PIT04_00.SMTH",
+        "BLD01_PT04.SMTH"
+    ]
+}
