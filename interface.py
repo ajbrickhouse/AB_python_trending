@@ -40,53 +40,68 @@ class TrendInterface:
 
     def create_widgets(self):
         # Device Number
-        tk.Label(self.root, text="Device Number").grid(row=0, column=0)
+        tk.Label(self.root, text="Device Number").grid(row=0, column=0, sticky='nw')
         self.device_number = tk.Entry(self.root)
-        self.device_number.grid(row=0, column=1)
+        self.device_number.grid(row=0, column=1, sticky='ew')
 
         # Trend Description
-        tk.Label(self.root, text="Trend Description").grid(row=1, column=0)
+        tk.Label(self.root, text="Trend Description").grid(row=1, column=0, sticky='nw')
         self.trend_desc = tk.Entry(self.root)
-        self.trend_desc.grid(row=1, column=1)
+        self.trend_desc.grid(row=1, column=1, sticky='ew')
 
         # Cycles
-        tk.Label(self.root, text="Cycles").grid(row=2, column=0)
+        tk.Label(self.root, text="Cycles").grid(row=2, column=0, sticky='nw')
         self.cycles = tk.Entry(self.root)
-        self.cycles.grid(row=2, column=1)
+        self.cycles.grid(row=2, column=1, sticky='ew')
 
         # Cycle Time
-        tk.Label(self.root, text="Cycle Time").grid(row=3, column=0)
+        tk.Label(self.root, text="Cycle Time").grid(row=3, column=0, sticky='nw')
         self.cycle_time = tk.Entry(self.root)
-        self.cycle_time.grid(row=3, column=1)
+        self.cycle_time.grid(row=3, column=1, sticky='ew')
 
         # Buffer Size
-        tk.Label(self.root, text="Buffer Size").grid(row=4, column=0)
+        tk.Label(self.root, text="Buffer Size").grid(row=4, column=0, sticky='nw')
         self.buffer_size = tk.Entry(self.root)
-        self.buffer_size.grid(row=4, column=1)
+        self.buffer_size.grid(row=4, column=1, sticky='ew')
 
         # PLC IP
-        tk.Label(self.root, text="PLC IP").grid(row=5, column=0)
+        tk.Label(self.root, text="PLC IP").grid(row=5, column=0, sticky='nw')
         self.plc_ip = tk.Entry(self.root)
-        self.plc_ip.grid(row=5, column=1)
+        self.plc_ip.grid(row=5, column=1, sticky='ew')
 
         # Tags
         tk.Label(self.root, text="Tags").grid(row=6, column=0, sticky='nw')
         self.tags_listbox = tk.Listbox(self.root, selectmode=tk.MULTIPLE, height=10)
-        self.tags_listbox.grid(row=6, column=1, rowspan=4)
-        self.add_tag_button = tk.Button(self.root, text="Add Tag", command=self.add_tag)
-        self.add_tag_button.grid(row=6, column=2)
-        self.remove_tag_button = tk.Button(self.root, text="Remove Tag", command=self.remove_tag)
-        self.remove_tag_button.grid(row=7, column=2)
+        self.tags_listbox.grid(row=6, column=1, rowspan=4, sticky='ew')
+        
+        # Tags Buttons Frame
+        self.tags_buttons_frame = tk.Frame(self.root)
+        self.tags_buttons_frame.grid(row=10, column=1, sticky='ew')
+        
+        self.add_tag_button = tk.Button(self.tags_buttons_frame, text="Add Tag", command=self.add_tag)
+        self.add_tag_button.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        
+        self.remove_tag_button = tk.Button(self.tags_buttons_frame, text="Remove Tag", command=self.remove_tag)
+        self.remove_tag_button.pack(side=tk.RIGHT, fill=tk.X, expand=True)
 
-        # Buttons
-        self.start_button = tk.Button(self.root, text="Start", command=self.start_trend)
-        self.start_button.grid(row=10, column=0)
-        self.pause_button = tk.Button(self.root, text="Pause", command=self.pause_trend)
-        self.pause_button.grid(row=10, column=1)
-        self.stop_button = tk.Button(self.root, text="Stop", command=self.stop_trend)
-        self.stop_button.grid(row=10, column=2)
-        self.save_button = tk.Button(self.root, text="Save Settings", command=self.save_settings)
-        self.save_button.grid(row=11, column=1)
+        # Actions Label
+        tk.Label(self.root, text="Actions").grid(row=11, column=0, sticky='nw')
+
+        # Actions Buttons Frame
+        self.actions_buttons_frame = tk.Frame(self.root)
+        self.actions_buttons_frame.grid(row=11, column=1, sticky='ew')
+        
+        self.start_button = tk.Button(self.actions_buttons_frame, text="Start", command=self.start_trend)
+        self.start_button.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        
+        self.pause_button = tk.Button(self.actions_buttons_frame, text="Pause", command=self.pause_trend)
+        self.pause_button.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        
+        self.stop_button = tk.Button(self.actions_buttons_frame, text="Stop", command=self.stop_trend)
+        self.stop_button.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        
+        self.save_button = tk.Button(self.actions_buttons_frame, text="Save Settings", command=self.save_settings)
+        self.save_button.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
     def load_settings(self):
         self.device_number.insert(0, self.config.config['device_number'])
