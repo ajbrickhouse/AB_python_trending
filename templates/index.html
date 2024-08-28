@@ -4,71 +4,101 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PLC Trend Collection Control</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
-<body>
-    <h1>PLC Trend Collection Control</h1>
-    <p>Status: {{ 'Running' if script_running else 'Stopped' }}</p>
+<body class="bg-light">
+    <div class="container mt-5">
+        <h1 class="text-center">PLC Trend Collection Control</h1>
+        <p class="text-center fw-bold text-primary">Status: {{ 'Running' if script_running else 'Stopped' }}</p>
 
-    <form method="post" action="{{ url_for('start_script') }}">
-        <label for="device_number">Device Number:</label><br>
-        <input type="text" id="device_number" name="device_number" required><br><br>
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2>Script Control</h2>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('start_script') }}">
+                    <div class="mb-3">
+                        <label for="device_number" class="form-label">Device Number:</label>
+                        <input type="text" class="form-control" id="device_number" name="device_number" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="trend_desc" class="form-label">Trend Description:</label>
+                        <input type="text" class="form-control" id="trend_desc" name="trend_desc" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cycles" class="form-label">Number of Cycles:</label>
+                        <input type="number" class="form-control" id="cycles" name="cycles" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cycle_time" class="form-label">Cycle Time (seconds):</label>
+                        <input type="number" class="form-control" id="cycle_time" name="cycle_time" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="buffer_size" class="form-label">Buffer Size:</label>
+                        <input type="number" class="form-control" id="buffer_size" name="buffer_size" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="plc_ip" class="form-label">PLC IP Address:</label>
+                        <input type="text" class="form-control" id="plc_ip" name="plc_ip" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Start Script</button>
+                </form>
+                <form method="post" action="{{ url_for('stop_script') }}" class="mt-3">
+                    <button type="submit" class="btn btn-danger">Stop Script</button>
+                </form>
+            </div>
+        </div>
 
-        <label for="trend_desc">Trend Description:</label><br>
-        <input type="text" id="trend_desc" name="trend_desc" required><br><br>
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2>Manage Tags</h2>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('add_tag') }}">
+                    <div class="mb-3">
+                        <label for="tags" class="form-label">Add Tags (one per line):</label>
+                        <textarea id="tags" name="tags" class="form-control" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success">Add Tags</button>
+                </form>
 
-        <label for="cycles">Number of Cycles:</label><br>
-        <input type="number" id="cycles" name="cycles" required><br><br>
-
-        <label for="cycle_time">Cycle Time (seconds):</label><br>
-        <input type="number" id="cycle_time" name="cycle_time" required><br><br>
-
-        <label for="buffer_size">Buffer Size:</label><br>
-        <input type="number" id="buffer_size" name="buffer_size" required><br><br>
-
-        <label for="plc_ip">PLC IP Address:</label><br>
-        <input type="text" id="plc_ip" name="plc_ip" required><br><br>
-
-        <input type="submit" value="Start Script">
-    </form>
-
-    <form method="post" action="{{ url_for('stop_script') }}" style="margin-top: 20px;">
-        <input type="submit" value="Stop Script">
-    </form>
-
-    <h2>Manage Tags</h2>
-    <form method="post" action="{{ url_for('add_tag') }}">
-        <label for="tags">Add Tags (one per line):</label><br>
-        <textarea id="tags" name="tags" rows="5" cols="40" required></textarea><br><br>
-        <input type="submit" value="Add Tags">
-    </form>
-
-    <ul>
-        {% for tag in tags %}
-        <li>{{ tag }} 
-            <form method="post" action="{{ url_for('remove_tag', tag=tag) }}" style="display:inline;">
-                <input type="submit" value="Remove">
-            </form>
-        </li>
-        {% endfor %}
-    </ul>
-
-    <h2>Recorded Data</h2>
-    <div id="data_display">
-        <table border="1">
-            <thead>
-                <tr>
-                    <th>Index</th>
-                    <th>DateTime</th>
+                <ul class="list-group mt-3">
                     {% for tag in tags %}
-                    <th>{{ tag }}</th>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ tag }}
+                        <form method="post" action="{{ url_for('remove_tag', tag=tag) }}" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                        </form>
+                    </li>
                     {% endfor %}
-                </tr>
-            </thead>
-            <tbody id="data_rows">
-                <!-- Data will be populated here by JavaScript -->
-            </tbody>
-        </table>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Recorded Data</h2>
+            </div>
+            <div class="card-body">
+                <div id="data_display">
+                    <table class="table table-striped table-bordered">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Index</th>
+                                <th>DateTime</th>
+                                {% for tag in tags %}
+                                <th>{{ tag }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody id="data_rows">
+                            <!-- Data will be populated here by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -88,5 +118,7 @@
 
         setInterval(fetchData, 2000);  // Fetch new data every 2 seconds
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
