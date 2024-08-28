@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PLC Trend Collection Control</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <h1>PLC Trend Collection Control</h1>
     <p>Status: {{ 'Running' if script_running else 'Stopped' }}</p>
+
     <form method="post" action="{{ url_for('start_script') }}">
         <label for="device_number">Device Number:</label><br>
         <input type="text" id="device_number" name="device_number" required><br><br>
@@ -34,14 +36,57 @@
         <input type="submit" value="Stop Script">
     </form>
 
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <ul>
-        {% for message in messages %}
-          <li>{{ message }}</li>
+    <h2>Manage Tags</h2>
+    <form method="post" action="{{ url_for('add_tag') }}">
+        <label for="tags">Add Tags (one per line):</label><br>
+        <textarea id="tags" name="tags" rows="5" cols="40" required></textarea><br><br>
+        <input type="submit" value="Add Tags">
+    </form>
+
+    <ul>
+        {% for tag in tags %}
+        <li>{{ tag }} 
+            <form method="post" action="{{ url_for('remove_tag', tag=tag) }}" style="display:inline;">
+                <input type="submit" value="Remove">
+            </form>
+        </li>
         {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
+    </ul>
+
+    <h2>Recorded Data</h2>
+    <div id="data_display">
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Index</th>
+                    <th>DateTime</th>
+                    {% for tag in tags %}
+                    <th>{{ tag }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody id="data_rows">
+                <!-- Data will be populated here by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function fetchData() {
+            $.getJSON('{{ url_for("get_data") }}', function(data) {
+                var rows = '';
+                data.forEach(function(row) {
+                    rows += '<tr>';
+                    row.forEach(function(cell) {
+                        rows += '<td>' + cell + '</td>';
+                    });
+                    rows += '</tr>';
+                });
+                $('#data_rows').html(rows);
+            });
+        }
+
+        setInterval(fetchData, 2000);  // Fetch new data every 2 seconds
+    </script>
 </body>
 </html>
