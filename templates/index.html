@@ -22,11 +22,26 @@
 <body class="bg-light">
     <div class="container-custom mt-5 mx-auto d-flex">
         <div class="left-column me-4">
-            <p class="text-center fw-bold text-primary">Status: {{ 'Running' if script_running else 'Stopped' }}</p>
 
             <div class="card mb-4">
                 <div class="card-header">
-                    <h2>Script Control</h2>
+                    <h2>Status: {{ 'Running' if script_running else 'Stopped' }}</h2>
+                </div>
+                <div class="card-body text-center">
+                    <div class="d-flex justify-content-around">
+                        <form method="post" action="{{ url_for('start_script') }}" class="mb-2">
+                            <button type="submit" class="btn btn-success">Start Script</button>
+                        </form>
+                        <form method="post" action="{{ url_for('stop_script') }}">
+                            <button type="submit" class="btn btn-danger">Stop Script</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2>Script Settings</h2>
                 </div>
                 <div class="card-body">
                     <form method="post" action="{{ url_for('start_script') }}">
@@ -54,10 +69,6 @@
                             <label for="plc_ip" class="form-label">PLC IP Address:</label>
                             <input type="text" class="form-control" id="plc_ip" name="plc_ip" required>
                         </div>
-                        <button type="submit" class="btn btn-primary">Start Script</button>
-                    </form>
-                    <form method="post" action="{{ url_for('stop_script') }}" class="mt-3">
-                        <button type="submit" class="btn btn-danger">Stop Script</button>
                     </form>
                 </div>
             </div>
