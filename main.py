@@ -5,19 +5,19 @@ import datetime
 import os
 import csv
 from pylogix import PLC
+import uuid  # To generate unique thread IDs
 
 app = Flask(__name__)
 app.secret_key = 'some_secret_key'
 
 # Global variables to control the script
 script_running = False
-script_thread = None
+script_threads = {}  # Dictionary to keep track of active threads
 data_buffer = []
 tags = ["BLD01_PIT01_00.SMTH", "BLD01_PIT04_00.SMTH"]  # Default tags
 
-
-def run_trend_collection(device_number, trend_desc, cycles, cycle_time, buffer_size, plc_ip):
-    global script_running, data_buffer
+def run_trend_collection(device_number, trend_desc, cycles, cycle_time, buffer_size, plc_ip, thread_id):
+    global script_running, data_buffer, script_threads
     script_running = True
 
     col_tags = tags.copy()
@@ -40,7 +40,7 @@ def run_trend_collection(device_number, trend_desc, cycles, cycle_time, buffer_s
         comm.IPAddress = plc_ip
 
         for cycle in range(cycles):
-            if not script_running:
+            if not script_running or thread_id not in script_threads:
                 break
 
             ret = comm.Read(tags)
@@ -59,45 +59,47 @@ def run_trend_collection(device_number, trend_desc, cycles, cycle_time, buffer_s
 
             time.sleep(cycle_time)
 
-    script_running = False
+    # Remove the thread from the dictionary after completion
+    if thread_id in script_threads:
+        del script_threads[thread_id]
 
+    script_running = False
 
 @app.route('/')
 def index():
-    return render_template('index.html', script_running=script_running, tags=tags)
-
+    return render_template('index.html', script_running=script_running, tags=tags, script_threads=script_threads)
 
 @app.route('/start', methods=['POST'])
 def start_script():
-    global script_thread
-    if not script_running:
-        device_number = request.form['device_number']
-        trend_desc = request.form['trend_desc']
-        cycles = int(request.form['cycles'])
-        cycle_time = int(request.form['cycle_time'])
-        buffer_size = int(request.form['buffer_size'])
-        plc_ip = request.form['plc_ip']
+    global script_threads
+    device_number = request.form['device_number']
+    trend_desc = request.form['trend_desc']
+    cycles = int(request.form['cycles'])
+    cycle_time = int(request.form['cycle_time'])
+    buffer_size = int(request.form['buffer_size'])
+    plc_ip = request.form['plc_ip']
+    
+    # Generate a unique thread ID
+    thread_id = str(uuid.uuid4())
 
-        script_thread = threading.Thread(target=run_trend_collection, args=(device_number, trend_desc, cycles, cycle_time, buffer_size, plc_ip))
-        script_thread.start()
-        flash('Script started successfully!')
-    else:
-        flash('Script is already running!')
-
-    return redirect(url_for('index'))
-
-
-@app.route('/stop', methods=['POST'])
-def stop_script():
-    global script_running
-    if script_running:
-        script_running = False
-        flash('Script stopped successfully!')
-    else:
-        flash('No script is running!')
+    script_thread = threading.Thread(target=run_trend_collection, args=(device_number, trend_desc, cycles, cycle_time, buffer_size, plc_ip, thread_id))
+    script_threads[thread_id] = script_thread
+    script_thread.start()
+    flash('Script started successfully!')
 
     return redirect(url_for('index'))
 
+@app.route('/stop_thread/<string:thread_id>', methods=['POST'])
+def stop_thread(thread_id):
+    global script_threads
+    if thread_id in script_threads:
+        # Simply remove the thread from the dictionary to stop it
+        del script_threads[thread_id]
+        flash(f'Script with ID {thread_id} stopped successfully!')
+    else:
+        flash('No script found with that ID!')
+
+    return redirect(url_for('index'))
 
 @app.route('/add_tag', methods=['POST'])
 def add_tag():
@@ -111,20 +113,17 @@ def add_tag():
 
     return redirect(url_for('index'))
 
-
-
 @app.route('/remove_tag/<string:tag>', methods=['POST'])
 def remove_tag(tag):
     if tag in tags:
         tags.remove(tag)
     return redirect(url_for('index'))
 
-
 @app.route('/data')
 def get_data():
     global data_buffer
-    return jsonify(data_buffer[-10:])  # Return the last 10 rows of data
-
+    sorted_data = sorted(data_buffer[-10:], key=lambda x: x[0])  # Use the appropriate index for sorting
+    return jsonify(sorted_data)  # Return the last 10 rows of sorted data
 
 if __name__ == '__main__':
     app.run(debug=True)
