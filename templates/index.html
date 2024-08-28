@@ -22,15 +22,14 @@
 <body class="bg-light">
     <div class="container-custom mt-5 mx-auto d-flex">
         <div class="left-column me-4">
-
             <div class="card mb-4">
                 <div class="card-header">
                     <h2>Status: {{ 'Running' if script_running else 'Stopped' }}</h2>
                 </div>
                 <div class="card-body text-center">
                     <div class="d-flex justify-content-around">
-                        <form method="post" action="{{ url_for('start_script') }}" class="mb-2">
-                            <button type="submit" class="btn btn-success">Start Script</button>
+                        <form method="post" action="{{ url_for('start_script') }}">
+                            <button type="submit" class="btn btn-primary">Start Script</button>
                         </form>
                         <form method="post" action="{{ url_for('stop_script') }}">
                             <button type="submit" class="btn btn-danger">Stop Script</button>
@@ -40,38 +39,38 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header">
-                    <h2>Script Settings</h2>
-                </div>
-                <div class="card-body">
-                    <form method="post" action="{{ url_for('start_script') }}">
-                        <div class="mb-3">
-                            <label for="device_number" class="form-label">Device Number:</label>
-                            <input type="text" class="form-control" id="device_number" name="device_number" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="trend_desc" class="form-label">Trend Description:</label>
-                            <input type="text" class="form-control" id="trend_desc" name="trend_desc" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="cycles" class="form-label">Number of Cycles:</label>
-                            <input type="number" class="form-control" id="cycles" name="cycles" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="cycle_time" class="form-label">Cycle Time (seconds):</label>
-                            <input type="number" class="form-control" id="cycle_time" name="cycle_time" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="buffer_size" class="form-label">Buffer Size:</label>
-                            <input type="number" class="form-control" id="buffer_size" name="buffer_size" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="plc_ip" class="form-label">PLC IP Address:</label>
-                            <input type="text" class="form-control" id="plc_ip" name="plc_ip" required>
-                        </div>
-                    </form>
-                </div>
-            </div>
+              <div class="card-header">
+                  <h2>Script Control</h2>
+              </div>
+              <div class="card-body">
+                  <form method="post" action="{{ url_for('start_script') }}">
+                      <div class="mb-3">
+                          <label for="device_number" class="form-label">Device Number:</label>
+                          <input type="text" class="form-control" id="device_number" name="device_number" required>
+                      </div>
+                      <div class="mb-3">
+                          <label for="trend_desc" class="form-label">Trend Description:</label>
+                          <input type="text" class="form-control" id="trend_desc" name="trend_desc" required>
+                      </div>
+                      <div class="mb-3">
+                          <label for="cycles" class="form-label">Number of Cycles:</label>
+                          <input type="number" class="form-control" id="cycles" name="cycles" required>
+                      </div>
+                      <div class="mb-3">
+                          <label for="cycle_time" class="form-label">Cycle Time (seconds):</label>
+                          <input type="number" class="form-control" id="cycle_time" name="cycle_time" required>
+                      </div>
+                      <div class="mb-3">
+                          <label for="buffer_size" class="form-label">Buffer Size:</label>
+                          <input type="number" class="form-control" id="buffer_size" name="buffer_size" required>
+                      </div>
+                      <div class="mb-3">
+                          <label for="plc_ip" class="form-label">PLC IP Address:</label>
+                          <input type="text" class="form-control" id="plc_ip" name="plc_ip" required>
+                      </div>
+                  </form>
+              </div>
+          </div>
 
             <div class="card mb-4">
                 <div class="card-header">
@@ -131,6 +130,10 @@
         function fetchData() {
             $.getJSON('{{ url_for("get_data") }}', function(data) {
                 var rows = '';
+                // Sort data in descending order based on the first column (assumed to be an index or timestamp)
+                data.sort(function(a, b) {
+                    return b[0] - a[0];  // Adjust based on your specific sorting criteria
+                });
                 data.forEach(function(row) {
                     rows += '<tr>';
                     row.forEach(function(cell) {
