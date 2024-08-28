@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PLC Trend Collection Control</title>
+</head>
+<body>
+    <h1>PLC Trend Collection Control</h1>
+    <p>Status: {{ 'Running' if script_running else 'Stopped' }}</p>
+    <form method="post" action="{{ url_for('start_script') }}">
+        <label for="device_number">Device Number:</label><br>
+        <input type="text" id="device_number" name="device_number" required><br><br>
+
+        <label for="trend_desc">Trend Description:</label><br>
+        <input type="text" id="trend_desc" name="trend_desc" required><br><br>
+
+        <label for="cycles">Number of Cycles:</label><br>
+        <input type="number" id="cycles" name="cycles" required><br><br>
+
+        <label for="cycle_time">Cycle Time (seconds):</label><br>
+        <input type="number" id="cycle_time" name="cycle_time" required><br><br>
+
+        <label for="buffer_size">Buffer Size:</label><br>
+        <input type="number" id="buffer_size" name="buffer_size" required><br><br>
+
+        <label for="plc_ip">PLC IP Address:</label><br>
+        <input type="text" id="plc_ip" name="plc_ip" required><br><br>
+
+        <input type="submit" value="Start Script">
+    </form>
+
+    <form method="post" action="{{ url_for('stop_script') }}" style="margin-top: 20px;">
+        <input type="submit" value="Stop Script">
+    </form>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+</body>
+</html>
