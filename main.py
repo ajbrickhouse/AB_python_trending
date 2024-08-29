@@ -136,36 +136,40 @@ def trend_control():
     systems = conn.execute('SELECT * FROM Systems').fetchall()
     tag_sets = conn.execute('SELECT * FROM Tags').fetchall()
 
-    if request.method == 'POST':
-        trend_id = request.form.get('trend_id')
-        system_id = request.form['system_id']
-        tag_set_id = request.form['tag_set_id']
-        description = request.form['description']
-        cycles = request.form['cycles']
-        cycle_time = request.form['cycle_time']
-        buffer_size = request.form['buffer_size']
+    try:
+        if request.method == 'POST':
+            trend_id = request.form.get('trend_id')
+            system_id = request.form['system_id']
+            tag_set_id = request.form['tag_set_id']
+            description = request.form['description']
+            cycles = request.form['cycles']
+            cycle_time = request.form['cycle_time']
+            buffer_size = request.form['buffer_size']
 
-        # Fetch system and tag details for the trend
-        system_device_number = conn.execute('SELECT device_number FROM Systems WHERE id = ?', (system_id,)).fetchone()[0]
-        system_ip = conn.execute('SELECT plc_ip FROM Systems WHERE id = ?', (system_id,)).fetchone()[0]
-        system_subnet = conn.execute('SELECT subnet FROM Systems WHERE id = ?', (system_id,)).fetchone()[0]
-        tag_set = conn.execute('SELECT tags FROM Tags WHERE id = ?', (tag_set_id,)).fetchone()[0]
+            # Fetch system and tag details for the trend
+            system_device_number = conn.execute('SELECT device_number FROM Systems WHERE id = ?', (system_id,)).fetchone()[0]
+            system_ip = conn.execute('SELECT plc_ip FROM Systems WHERE id = ?', (system_id,)).fetchone()[0]
+            system_subnet = conn.execute('SELECT subnet FROM Systems WHERE id = ?', (system_id,)).fetchone()[0]
+            tag_set = conn.execute('SELECT tags FROM Tags WHERE id = ?', (tag_set_id,)).fetchone()[0]
 
-        if trend_id:  # If trend_id exists, it's an edit operation
-            conn.execute('''
-                UPDATE Trends SET device_number = ?, plc_ip = ?, subnet = ?, tags = ?, description = ?, cycles = ?, cycle_time = ?, buffer_size = ?
-                WHERE id = ?''',
-                         (system_device_number, system_ip, system_subnet, tag_set, description, cycles, cycle_time, buffer_size, trend_id))
-            flash('Trend updated successfully!')
-        else:  # Otherwise, it's an add operation
-            conn.execute('''
-                INSERT INTO Trends (device_number, plc_ip, subnet, tags, description, cycles, cycle_time, buffer_size)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
-                         (system_device_number, system_ip, system_subnet, tag_set, description, cycles, cycle_time, buffer_size))
-            flash('Trend added successfully!')
+            if trend_id:  # If trend_id exists, it's an edit operation
+                conn.execute('''
+                    UPDATE Trends SET device_number = ?, plc_ip = ?, subnet = ?, tags = ?, description = ?, cycles = ?, cycle_time = ?, buffer_size = ?
+                    WHERE id = ?''',
+                            (system_device_number, system_ip, system_subnet, tag_set, description, cycles, cycle_time, buffer_size, trend_id))
+                flash('Trend updated successfully!')
+            else:  # Otherwise, it's an add operation
+                conn.execute('''
+                    INSERT INTO Trends (device_number, plc_ip, subnet, tags, description, cycles, cycle_time, buffer_size)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
+                            (system_device_number, system_ip, system_subnet, tag_set, description, cycles, cycle_time, buffer_size))
+                flash('Trend added successfully!')
 
-        conn.commit()
-        return redirect(url_for('trend_control'))
+            conn.commit()
+            return redirect(url_for('trend_control'))
+    except Exception as e:
+        print(e)
+        flash('Error occurred while saving the trend!')
 
     trends = conn.execute('''SELECT * FROM Trends''').fetchall()
 
@@ -180,23 +184,26 @@ def edit_trend(id):
     tag_sets = conn.execute('SELECT * FROM Tags').fetchall()
 
     if request.method == 'POST':
-        system_id = request.form['system_id']
-        tag_set_id = request.form['tag_set_id']
+        device_number = request.form['device_number']
+        tags = request.form['tags']
         cycles = request.form['cycles']
         cycle_time = request.form['cycle_time']
         buffer_size = request.form['buffer_size']
+        description = request.form['description']
 
         conn.execute('''
-            UPDATE Trends SET system_id = ?, tag_set_id = ?, cycles = ?, cycle_time = ?, buffer_size = ?
+            UPDATE Trends 
+            SET device_number = ?, tags = ?, cycles = ?, cycle_time = ?, buffer_size = ?, description = ?
             WHERE id = ?''',
-                     (system_id, tag_set_id, cycles, cycle_time, buffer_size, id))
+            (device_number, tags, cycles, cycle_time, buffer_size, description, id))
         conn.commit()
         conn.close()
         flash('Trend updated successfully!')
         return redirect(url_for('trend_control'))
 
+    trends = conn.execute('SELECT * FROM Trends').fetchall()
     conn.close()
-    return render_template('edit_trend.html', trend=trend, systems=systems, tag_sets=tag_sets)
+    return render_template('edit_trend.html', trend=trend, systems=systems, tag_sets=tag_sets, trends=trends)
 
 @app.route('/delete_trend/<int:id>', methods=['POST'])
 def delete_trend(id):
