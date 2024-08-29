@@ -5,7 +5,7 @@
 {% block content %}
 <div class="container mt-5">
     <h1>Trend Control</h1>
-    
+
     <!-- Trend Data Entry Form -->
     <form method="post" action="{{ url_for('trend_control') }}">
         <input type="hidden" name="trend_id" value="{{ trend['id'] if trend }}">
@@ -32,12 +32,12 @@
         <div class="mb-3">
             <label for="cycle_time" class="form-label">Cycle Time (ms):</label>
             <input type="number" class="form-control" id="cycle_time" name="cycle_time" step="0.1" value="{{ trend['cycle_time'] if trend else 0.1 }}" required>
-            <small id="trend_duration" class="form-text text-muted"></small> <!-- This line will display the calculated duration -->
+            <small id="trend_duration" class="form-text text-muted"></small>
         </div>
         <div class="mb-3">
             <label for="buffer_size" class="form-label">Buffer Size:</label>
             <input type="number" class="form-control" id="buffer_size" name="buffer_size" value="{{ trend['buffer_size'] if trend else 100 }}" required>
-            <small id="buffer_duration" class="form-text text-muted"></small> <!-- This line will display the "Save to file every x seconds" -->
+            <small id="buffer_duration" class="form-text text-muted"></small>
         </div>
         <div class="mb-3">
             <label for="description" class="form-label">Description:</label>

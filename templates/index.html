@@ -1,6 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <div style="position: relative;">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              {% for category, message in messages %}
+                  {% if category == 'message' %}
+                    <div class="alert alert-warning fade-in" role="alert" style="position: absolute; top: 10px; right: 10px; z-index: 1000;">
+                  {% else %}
+                    <div class="alert alert-{{ category }} fade-in" role="alert" style="position: absolute; top: 10px; right: 10px; z-index: 1000;">
+                  {% endif %}
+                    {{ message }}
+                  </div>
+              {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}My Application{% endblock %}</title>
@@ -9,7 +24,7 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('manage_tags') }}">AB Trending Center</a> <!-- Updated the link -->
+            <a class="navbar-brand" href="{{ url_for('manage_tags') }}">AB Trending Center</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -34,5 +49,39 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // JavaScript to fade in, then fade out and remove the flash alert
+        document.addEventListener('DOMContentLoaded', function() {
+            var alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                // Trigger fade-in effect by adding the 'show' class after a short delay
+                setTimeout(function() {
+                    alert.classList.add('show');
+                }, 100); // Slight delay to ensure CSS transition applies
+
+                // After 5 seconds, start the fade-out process
+                setTimeout(function() {
+                    alert.classList.remove('show');
+                    alert.classList.add('fade-out');
+                    setTimeout(function() {
+                        alert.remove(); // Remove the alert after the fade-out transition
+                    }, 1000); // Duration of the fade-out effect
+                }, 5000); // 5 seconds before starting the fade-out
+            });
+        });
+    </script>
+    <style>
+        .fade-in {
+            opacity: 0;
+            transition: opacity 2s ease-in; /* Transition for fade-in effect */
+        }
+        .fade-in.show {
+            opacity: 1;
+        }
+        .fade-out {
+            opacity: 0;
+            transition: opacity 2s ease-out; /* Transition for fade-out effect */
+        }
+    </style>
 </body>
 </html>

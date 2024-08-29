@@ -3,34 +3,32 @@
 {% block title %}Trend Control{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
     <h1>Trend Control</h1>
-    
+
     <!-- Trend Data Entry Form -->
     <form method="post" action="{{ url_for('edit_trend', id=trend['id']) }}">
-    <!-- <form method="post" action="{{ url_for('trend_control') }}"> -->
         <input type="hidden" name="trend_id" value="{{ trend['id'] if trend }}">
         <div class="mb-3">
             <label for="device_number" class="form-label">Description:</label>
-            <input type="text" name="device_number" class="form-control" id="description" value="{{ trend['device_number'] if trend}}">
+            <input type="text" name="device_number" class="form-control" id="description" value="{{ trend['device_number'] if trend }}">
         </div>
         <div class="mb-3">
             <label for="tags" class="form-label">Tags (one per line):</label>
-            <textarea id="tags" name="tags" class="form-control" rows="5" required>{{ trend['tags'] if trend}}</textarea>
+            <textarea id="tags" name="tags" class="form-control" rows="5" required>{{ trend['tags'] if trend }}</textarea>
         </div>
         <div class="mb-3">
             <label for="cycles" class="form-label">Cycles:</label>
-            <input type="number" class="form-control" id="cycles" name="cycles" value="{{ trend['cycles'] if trend}}" required>
+            <input type="number" class="form-control" id="cycles" name="cycles" value="{{ trend['cycles'] if trend }}" required>
         </div>
         <div class="mb-3">
             <label for="cycle_time" class="form-label">Cycle Time (ms):</label>
-            <input type="number" class="form-control" id="cycle_time" name="cycle_time" step="0.1" value="{{ trend['cycle_time'] if trend}}" required>
-            <small id="trend_duration" class="form-text text-muted"></small> <!-- This line will display the calculated duration -->
+            <input type="number" class="form-control" id="cycle_time" name="cycle_time" step="0.1" value="{{ trend['cycle_time'] if trend }}" required>
+            <small id="trend_duration" class="form-text text-muted"></small>
         </div>
         <div class="mb-3">
             <label for="buffer_size" class="form-label">Buffer Size:</label>
-            <input type="number" class="form-control" id="buffer_size" name="buffer_size" value="{{ trend['buffer_size'] if trend}}" required>
-            <small id="buffer_duration" class="form-text text-muted"></small> <!-- This line will display the "Save to file every x seconds" -->
+            <input type="number" class="form-control" id="buffer_size" name="buffer_size" value="{{ trend['buffer_size'] if trend }}" required>
+            <small id="buffer_duration" class="form-text text-muted"></small>
         </div>
         <div class="mb-3">
             <label for="description" class="form-label">Description:</label>

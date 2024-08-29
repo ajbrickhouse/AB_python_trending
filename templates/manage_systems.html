@@ -5,6 +5,8 @@
 {% block content %}
 <div class="container mt-5">
     <h1>Manage Systems</h1>
+
+    <!-- System Form -->
     <form method="post" action="{{ url_for('manage_systems') }}">
         <input type="hidden" id="system_id" name="system_id" value="">
         <div class="mb-3">
@@ -26,6 +28,7 @@
         <button type="submit" class="btn btn-primary w-100">Save System</button>
     </form>
 
+    <!-- Existing Systems -->
     <h2 class="mt-5">Existing Systems</h2>
     <ul class="list-group">
         {% for system in systems %}

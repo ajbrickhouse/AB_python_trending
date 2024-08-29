@@ -32,11 +32,11 @@ def manage_systems():
         if system_id:  # If system_id exists, it's an edit operation
             conn.execute('UPDATE Systems SET device_number = ?, description = ?, plc_ip = ?, subnet = ? WHERE id = ?',
                          (device_number, description, plc_ip, subnet, system_id))
-            flash('System updated successfully!')
+            flash('System updated successfully!', 'success')
         else:  # Otherwise, it's an add operation
             conn.execute('INSERT INTO Systems (device_number, description, plc_ip, subnet) VALUES (?, ?, ?, ?)',
                          (device_number, description, plc_ip, subnet))
-            flash('System added successfully!')
+            flash('System added successfully!', 'success')
 
         conn.commit()
         return redirect(url_for('manage_systems'))
@@ -60,7 +60,7 @@ def edit_system(id):
                     (device_number, description, plc_ip, subnet, id))
         conn.commit()
         conn.close()
-        flash('System updated successfully!')
+        flash('System updated successfully!', 'success')
         return redirect(url_for('manage_systems'))
 
     conn.close()
@@ -72,7 +72,7 @@ def delete_system(id):
     conn.execute('DELETE FROM Systems WHERE id = ?', (id,))
     conn.commit()
     conn.close()
-    flash('System deleted successfully!')
+    flash('System deleted successfully!', 'success')
     return redirect(url_for('manage_systems'))
 
 # Route to manage tag sets
@@ -88,11 +88,11 @@ def manage_tags():
         if tag_set_id:  # If tag_set_id exists, it's an edit operation
             conn.execute('UPDATE Tags SET tag_set_name = ?, tags = ? WHERE id = ?',
                          (tag_set_name, tags, tag_set_id))
-            flash('Tag set updated successfully!')
+            flash('Tag set updated successfully!', 'success')
         else:  # Otherwise, it's an add operation
             conn.execute('INSERT INTO Tags (tag_set_name, tags) VALUES (?, ?)',
                          (tag_set_name, tags))
-            flash('Tag set added successfully!')
+            flash('Tag set added successfully!', 'success')
 
         conn.commit()
         return redirect(url_for('manage_tags'))
@@ -114,7 +114,7 @@ def edit_tag_set(id):
                      (tag_set_name, tags, id))
         conn.commit()
         conn.close()
-        flash('Tag set updated successfully!')
+        flash('Tag set updated successfully!', 'success')
         return redirect(url_for('manage_tags'))
 
     conn.close()
@@ -126,7 +126,7 @@ def delete_tag_set(id):
     conn.execute('DELETE FROM Tags WHERE id = ?', (id,))
     conn.commit()
     conn.close()
-    flash('Tag set deleted successfully!')
+    flash('Tag set deleted successfully!', 'success')
     return redirect(url_for('manage_tags'))
 
 # Route for trend control (showing dropdowns for system and tag set selection)
@@ -157,19 +157,19 @@ def trend_control():
                     UPDATE Trends SET device_number = ?, plc_ip = ?, subnet = ?, tags = ?, description = ?, cycles = ?, cycle_time = ?, buffer_size = ?
                     WHERE id = ?''',
                             (system_device_number, system_ip, system_subnet, tag_set, description, cycles, cycle_time, buffer_size, trend_id))
-                flash('Trend updated successfully!')
+                flash('Trend updated successfully!', 'success')
             else:  # Otherwise, it's an add operation
                 conn.execute('''
                     INSERT INTO Trends (device_number, plc_ip, subnet, tags, description, cycles, cycle_time, buffer_size)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
                             (system_device_number, system_ip, system_subnet, tag_set, description, cycles, cycle_time, buffer_size))
-                flash('Trend added successfully!')
+                flash('Trend added successfully!', 'success')
 
             conn.commit()
             return redirect(url_for('trend_control'))
     except Exception as e:
         print(e)
-        flash('Error occurred while saving the trend!')
+        flash('Error occurred while saving the trend!', 'error')
 
     trends = conn.execute('''SELECT * FROM Trends''').fetchall()
 
@@ -198,7 +198,7 @@ def edit_trend(id):
             (device_number, tags, cycles, cycle_time, buffer_size, description, id))
         conn.commit()
         conn.close()
-        flash('Trend updated successfully!')
+        flash('Trend updated successfully!', 'success')
         return redirect(url_for('trend_control'))
 
     trends = conn.execute('SELECT * FROM Trends').fetchall()
@@ -211,7 +211,7 @@ def delete_trend(id):
     conn.execute('DELETE FROM Trends WHERE id = ?', (id,))
     conn.commit()
     conn.close()
-    flash('Trend deleted successfully!')
+    flash('Trend deleted successfully!', 'success')
     return redirect(url_for('trend_control'))
 
 if __name__ == '__main__':
