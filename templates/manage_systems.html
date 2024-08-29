@@ -31,7 +31,7 @@
         {% for system in systems %}
         <li class="list-group-item d-flex justify-content-between align-items-center">
             <div>
-                <strong>{{ system['device_number'] }}</strong> - {{ system['description'] }} ({{ system['plc_ip'] }}) / Subnet: {{ system['subnet'] }}
+                <strong>{{ system['device_number'] }}</strong> - {{ system['description'] }} <br> {{ system['plc_ip'] }} <br> {{ system['subnet'] }}
             </div>
             <div>
                 <button class="btn btn-sm btn-warning" onclick="editSystem({{ system['id'] }}, '{{ system['device_number'] }}', '{{ system['description'] }}', '{{ system['plc_ip'] }}', '{{ system['subnet'] }}')">Edit</button>

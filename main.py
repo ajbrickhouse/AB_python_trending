@@ -142,5 +142,6 @@ def trend_control():
 
     return render_template('trend_control.html', systems=systems, tag_sets=tag_sets)
 
+
 if __name__ == '__main__':
     app.run(debug=True)
