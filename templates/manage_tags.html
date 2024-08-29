@@ -1,0 +1,49 @@
+{% extends "index.html" %}
+
+{% block title %}Manage Tags{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Manage Tags</h1>
+    <form method="post" action="{{ url_for('manage_tags') }}">
+        <input type="hidden" id="tag_set_id" name="tag_set_id" value="">
+        <div class="mb-3">
+            <label for="tag_set_name" class="form-label">Tag Set Name:</label>
+            <input type="text" class="form-control" id="tag_set_name" name="tag_set_name" required>
+        </div>
+        <div class="mb-3">
+            <label for="tags" class="form-label">Tags (one per line):</label>
+            <textarea id="tags" name="tags" class="form-control" rows="5" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Tag Set</button>
+    </form>
+
+    <h2 class="mt-5">Existing Tag Sets</h2>
+    <ul class="list-group">
+        {% for tag_set in tag_sets %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                <strong>{{ tag_set['tag_set_name'] }}</strong>
+                <pre>{{ tag_set['tags'] }}</pre>
+            </div>
+            <div>
+                <!-- Safely pass the tag set data -->
+                <button class="btn btn-sm btn-warning" onclick="editTagSet({{ tag_set['id'] }}, '{{ tag_set['tag_set_name'] }}', `{{ tag_set['tags'] }}`)">Edit</button>
+                <form method="post" action="{{ url_for('delete_tag_set', id=tag_set['id']) }}" style="display:inline;">
+                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+
+<script>
+    function editTagSet(id, tagSetName, tags) {
+        console.log('editTagSet function triggered with:', { id, tagSetName, tags });
+        document.getElementById('tag_set_id').value = id;
+        document.getElementById('tag_set_name').value = tagSetName;
+        document.getElementById('tags').value = tags; // tags should be a multiline string
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "index.html" %}
+
+{% block title %}Manage Systems{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Trend Control</h1>
+    <form method="post" action="{{ url_for('trend_control') }}">
+        <div class="mb-3">
+            <label for="system_id" class="form-label">Select System:</label>
+            <select class="form-select" id="system_id" name="system_id" required>
+                {% for system in systems %}
+                <option value="{{ system['id'] }}">{{ system['device_number'] }} - {{ system['description'] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="tag_set_id" class="form-label">Select Tag Set:</label>
+            <select class="form-select" id="tag_set_id" name="tag_set_id" required>
+                {% for tag_set in tag_sets %}
+                <option value="{{ tag_set['id'] }}">{{ tag_set['tag_set_name'] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Start Trend</button>
+    </form>
+</div>
+{% endblock %}
