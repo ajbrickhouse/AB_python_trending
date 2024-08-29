@@ -8,11 +8,12 @@
     
     <!-- Trend Data Entry Form -->
     <form method="post" action="{{ url_for('trend_control') }}">
+        <input type="hidden" name="trend_id" value="{{ trend['id'] if trend }}">
         <div class="mb-3">
             <label for="system_id" class="form-label">Select System:</label>
             <select class="form-select" id="system_id" name="system_id" required>
                 {% for system in systems %}
-                <option value="{{ system['id'] }}">{{ system['device_number'] }} - {{ system['description'] }}</option>
+                <option value="{{ system['id'] }}" {% if trend and trend['system_id'] == system['id'] %}selected{% endif %}>{{ system['device_number'] }} - {{ system['description'] }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -20,21 +21,27 @@
             <label for="tag_set_id" class="form-label">Select Tag Set:</label>
             <select class="form-select" id="tag_set_id" name="tag_set_id" required>
                 {% for tag_set in tag_sets %}
-                <option value="{{ tag_set['id'] }}">{{ tag_set['tag_set_name'] }}</option>
+                <option value="{{ tag_set['id'] }}" {% if trend and trend['tag_set_id'] == tag_set['id'] %}selected{% endif %}>{{ tag_set['tag_set_name'] }}</option>
                 {% endfor %}
             </select>
         </div>
         <div class="mb-3">
             <label for="cycles" class="form-label">Cycles:</label>
-            <input type="number" class="form-control" id="cycles" name="cycles" required>
+            <input type="number" class="form-control" id="cycles" name="cycles" value="{{ trend['cycles'] if trend else 999999}}" required>
         </div>
         <div class="mb-3">
             <label for="cycle_time" class="form-label">Cycle Time (ms):</label>
-            <input type="number" class="form-control" id="cycle_time" name="cycle_time" step="0.1" required>
+            <input type="number" class="form-control" id="cycle_time" name="cycle_time" step="0.1" value="{{ trend['cycle_time'] if trend else 0.1 }}" required>
+            <small id="trend_duration" class="form-text text-muted"></small> <!-- This line will display the calculated duration -->
         </div>
         <div class="mb-3">
             <label for="buffer_size" class="form-label">Buffer Size:</label>
-            <input type="number" class="form-control" id="buffer_size" name="buffer_size" required>
+            <input type="number" class="form-control" id="buffer_size" name="buffer_size" value="{{ trend['buffer_size'] if trend else 10 }}" required>
+            <small id="buffer_duration" class="form-text text-muted"></small> <!-- This line will display the "Save to file every x seconds" -->
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Description:</label>
+            <input type="text" class="form-control" id="description" name="description">
         </div>
         <button type="submit" class="btn btn-primary">Save Trend</button>
     </form>
@@ -61,4 +68,48 @@
         {% endfor %}
     </ul>
 </div>
+
+<script>
+    function calculateTrendDuration() {
+        var cycles = parseInt(document.getElementById('cycles').value, 10);
+        var cycleTime = parseFloat(document.getElementById('cycle_time').value);
+        var bufferSize = parseInt(document.getElementById('buffer_size').value, 10);
+
+        if (!isNaN(cycles) && !isNaN(cycleTime)) {
+            // Calculate total trend duration
+            var totalSeconds = (cycles * cycleTime);
+
+            var hours = Math.floor(totalSeconds / 3600);
+            var minutes = Math.floor((totalSeconds % 3600) / 60);
+            var seconds = totalSeconds % 60;
+
+            var durationText = hours + ' hours, ' + minutes + ' minutes, ' + seconds.toFixed(2) + ' seconds';
+            document.getElementById('trend_duration').innerText = 'Estimated Duration: ' + durationText;
+        } else {
+            document.getElementById('trend_duration').innerText = '';
+        }
+
+        if (!isNaN(bufferSize) && !isNaN(cycleTime)) {
+            // Calculate how often to save to file
+            var fileTotalSeconds = (bufferSize * cycleTime);
+
+            var fileHours = Math.floor(fileTotalSeconds / 3600);
+            var fileMinutes = Math.floor((fileTotalSeconds % 3600) / 60);
+            var fileSeconds = fileTotalSeconds % 60;
+
+            var saveText = 'Save to file every ' + fileMinutes + ' minutes, ' + fileSeconds.toFixed(2) + ' seconds';
+            document.getElementById('buffer_duration').innerText = saveText;
+        } else {
+            document.getElementById('buffer_duration').innerText = '';
+        }
+    }
+
+    document.getElementById('cycles').addEventListener('input', calculateTrendDuration);
+    document.getElementById('cycle_time').addEventListener('input', calculateTrendDuration);
+    document.getElementById('buffer_size').addEventListener('input', calculateTrendDuration);
+
+    // Initial calculation
+    calculateTrendDuration();
+
+</script>
 {% endblock %}

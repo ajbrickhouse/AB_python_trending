@@ -4,9 +4,12 @@ import sqlite3
 app = Flask(__name__)
 app.secret_key = 'some_secret_key'
 
+# Variable for the database name
+DATABASE_NAME = 'database.db'
+
 # Helper function to connect to the database
 def get_db_connection():
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(DATABASE_NAME)
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -137,18 +140,21 @@ def trend_control():
         trend_id = request.form.get('trend_id')
         system_id = request.form['system_id']
         tag_set_id = request.form['tag_set_id']
-        system_device_number = conn.execute('SELECT device_number FROM Systems WHERE id = ?', (system_id,)).fetchone()
-        system_ip = conn.execute('SELECT plc_ip FROM Systems WHERE id = ?', (system_id,)).fetchone()
-        system_subnet = conn.execute('SELECT subnet FROM Systems WHERE id = ?', (system_id,)).fetchone()
-        tag_set = conn.execute('SELECT tags FROM Tags WHERE id = ?', (tag_set_id,)).fetchone()
         description = request.form['description']
         cycles = request.form['cycles']
         cycle_time = request.form['cycle_time']
         buffer_size = request.form['buffer_size']
 
+        # Fetch system and tag details for the trend
+        system_device_number = conn.execute('SELECT device_number FROM Systems WHERE id = ?', (system_id,)).fetchone()[0]
+        system_ip = conn.execute('SELECT plc_ip FROM Systems WHERE id = ?', (system_id,)).fetchone()[0]
+        system_subnet = conn.execute('SELECT subnet FROM Systems WHERE id = ?', (system_id,)).fetchone()[0]
+        tag_set = conn.execute('SELECT tags FROM Tags WHERE id = ?', (tag_set_id,)).fetchone()[0]
+
         if trend_id:  # If trend_id exists, it's an edit operation
             conn.execute('''
-                UPDATE Trends SET device_number = ?, plc_ip = ?, subnet = ?, tags = ?, description = ?, cycles = ?, cycle_time = ?, buffer_size = ?, WHERE id = ?''',
+                UPDATE Trends SET device_number = ?, plc_ip = ?, subnet = ?, tags = ?, description = ?, cycles = ?, cycle_time = ?, buffer_size = ?
+                WHERE id = ?''',
                          (system_device_number, system_ip, system_subnet, tag_set, description, cycles, cycle_time, buffer_size, trend_id))
             flash('Trend updated successfully!')
         else:  # Otherwise, it's an add operation
@@ -200,8 +206,6 @@ def delete_trend(id):
     conn.close()
     flash('Trend deleted successfully!')
     return redirect(url_for('trend_control'))
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)
