@@ -4,49 +4,90 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h1>Manage Tags</h1>
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>Manage Tags Sets</h1>
+        <!-- Button trigger modal with plus icon -->
+        <button type="button" class="btn-link p-0" data-toggle="modal" data-target="#formModal" style="border: none; background: none; box-shadow: none;" onclick="editTagSet('', '', '', 'Add Tag Set')">
+            <img src="{{ url_for('static', filename='images/plus.svg') }}" alt="Plus Icon" width="32" height="32">
+        </button>
+    </div>
+    <br>
 
-    <!-- Tag Set Form -->
-    <form method="post" action="{{ url_for('manage_tags') }}">
-        <input type="hidden" id="tag_set_id" name="tag_set_id" value="">
-        <div class="mb-3">
-            <label for="tag_set_name" class="form-label">Tag Set Name:</label>
-            <input type="text" class="form-control" id="tag_set_name" name="tag_set_name" required>
+    <!-- Modal -->
+    <div class="modal fade" id="formModal" tabindex="-1" role="dialog" aria-labelledby="formModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">Add Tag Set</h5>
+            <button type="button" class="btn-link p-0" data-dismiss="modal" style="border: none; background: none; box-shadow: none;" onclick="editTagSet('', '', '', '')">
+                <img src="{{ url_for('static', filename='images/x-square.svg') }}" alt="Close" width="16" height="16">
+            </button>
+            </div>
+            <div class="modal-body">    
+            <!-- Tag Set Form -->
+            <form method="post" action="{{ url_for('manage_tags') }}">
+                <input type="hidden" id="tag_set_id" name="tag_set_id" value="">
+                <div class="mb-3">
+                    <label for="tag_set_name" class="form-label">Tag Set Name:</label>
+                    <input type="text" class="form-control" id="tag_set_name" name="tag_set_name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="tags" class="form-label">Tags (one per line):</label>
+                    <textarea id="tags" name="tags" class="form-control" rows="20" spellcheck="false" required></textarea>
+                </div>
+  
+            </div>
+            <div class="modal-footer">
+            <button type="submit" class="btn btn-primary w-100">Save Tag Set</button>
+            </form> 
+            </div>
         </div>
-        <div class="mb-3">
-            <label for="tags" class="form-label">Tags (one per line):</label>
-            <textarea id="tags" name="tags" class="form-control" rows="5" required></textarea>
         </div>
-        <button type="submit" class="btn btn-primary w-100">Save Tag Set</button>
-    </form>
+    </div> 
 
     <!-- Existing Tag Sets -->
-    <h2 class="mt-5">Existing Tag Sets</h2>
     <ul class="list-group">
         {% for tag_set in tag_sets %}
         <li class="list-group-item d-flex justify-content-between align-items-start">
-            <div class="flex-grow-1 w-100">
+            <div class="flex-grow-1" style="margin-right: 10px;">
                 <strong>{{ tag_set['tag_set_name'] }}</strong>
-                <pre>{{ tag_set['tags'] }}</pre>
+                <textarea id="{{ tag_set['tag_set_name'] }}" 
+                          name="{{ tag_set['tag_set_name'] }}" 
+                          class="form-control" 
+                          rows="5" 
+                          spellcheck="false" 
+                          style="border: none; background: none; box-shadow: none;" 
+                          required>{{ tag_set['tags'] }}</textarea>
             </div>
-            <div class="d-flex flex-column align-items-start" style="width: 100px;">
+            <div class="d-flex flex-column align-items-start">
                 <!-- Safely pass the tag set data -->
-                <button class="btn btn-sm btn-warning mb-2" style="width: 100%;" onclick="editTagSet({{ tag_set['id'] }}, '{{ tag_set['tag_set_name'] }}', `{{ tag_set['tags'] }}`)">Edit</button>
-                <form method="post" action="{{ url_for('delete_tag_set', id=tag_set['id']) }}" style="width: 100%;">
-                    <button type="submit" class="btn btn-sm btn-danger" style="width: 100%;">Delete</button>
+                <form method="post" action="{{ url_for('delete_tag_set', id=tag_set['id']) }}">
+                    <button type="submit" class="btn-link p-0" style="border: none; background: none; box-shadow: none; margin-bottom: 1cap;">
+                        <img src="{{ url_for('static', filename='images/x-square.svg') }}" alt="Close" width="16" height="16">
+                    </button>
                 </form>
+                
+                <button class="btn-link p-0" style="border: none; background: none; box-shadow: none;" data-toggle="modal" data-target="#formModal" onclick="editTagSet({{ tag_set['id'] }}, '{{ tag_set['tag_set_name'] }}', `{{ tag_set['tags'] }}`, 'Edit Tag Set')">
+                    <img src="{{ url_for('static', filename='images/edit.svg') }}" alt="Close" width="16" height="16">
+                </button>
             </div>
         </li>
+              
         {% endfor %}
     </ul>
 </div>
 
 <script>
-    function editTagSet(id, tagSetName, tags) {
+    function editTagSet(id, tagSetName, tags, modal_title) {
         console.log('editTagSet function triggered with:', { id, tagSetName, tags });
         document.getElementById('tag_set_id').value = id;
         document.getElementById('tag_set_name').value = tagSetName;
         document.getElementById('tags').value = tags; // tags should be a multiline string
+        document.getElementById('exampleModalLongTitle').innerText = modal_title; // tags should be a multiline string
     }
+
 </script>
 {% endblock %}
+
+
+  
