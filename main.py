@@ -52,7 +52,7 @@ def manage_systems():
         return redirect(url_for('manage_systems'))
 
     systems = execute_query('SELECT * FROM Systems', fetchall=True)
-    return render_template('manage_systems.html', systems=systems)
+    return render_template('manage_systems.html', systems=systems, active_page='manage_systems')
 
 @app.route('/edit_system/<int:id>', methods=['GET', 'POST'])
 def edit_system(id):
@@ -97,7 +97,7 @@ def manage_tags():
         return redirect(url_for('manage_tags'))
 
     tag_sets = execute_query('SELECT * FROM Tags', fetchall=True)
-    return render_template('manage_tags.html', tag_sets=tag_sets)
+    return render_template('manage_tags.html', tag_sets=tag_sets, active_page='manage_tags')
 
 @app.route('/edit_tag_set/<int:id>', methods=['GET', 'POST'])
 def edit_tag_set(id):
@@ -122,33 +122,35 @@ def delete_tag_set(id):
 
 @app.route('/trend_control', methods=['GET', 'POST'])
 def trend_control():
+    systems = execute_query('SELECT * FROM Systems', fetchall=True)
+    tag_sets = execute_query('SELECT * FROM Tags', fetchall=True)
+
     if request.method == 'POST':
-        trend_id = request.form.get('trend_id')
-        device_number = request.form['device_number']
-        tags = request.form['tags']
+        system_id = request.form['device_number']  # Corrected from 'device_number' to 'system_id'
+        tag_set_id = request.form['tag_set_id']
         cycles = request.form['cycles']
         cycle_time = request.form['cycle_time']
         buffer_size = request.form['buffer_size']
         description = request.form['description']
 
-        if trend_id:  # If trend_id exists, it's an edit operation
-            execute_query('''
-                UPDATE Trends 
-                SET device_number = ?, tags = ?, cycles = ?, cycle_time = ?, buffer_size = ?, description = ?
-                WHERE id = ?''',
-                (device_number, tags, cycles, cycle_time, buffer_size, description, trend_id))
-            flash('Trend updated successfully!', 'success')
-        else:  # Otherwise, it's an add operation
-            execute_query('''
-                INSERT INTO Trends (device_number, tags, cycles, cycle_time, buffer_size, description)
-                VALUES (?, ?, ?, ?, ?, ?)''',
-                (device_number, tags, cycles, cycle_time, buffer_size, description))
-            flash('Trend added successfully!', 'success')
+        system = execute_query('SELECT * FROM Systems WHERE id = ?', (system_id,), fetchone=True)
+        tag_set = execute_query('SELECT * FROM Tags WHERE id = ?', (tag_set_id,), fetchone=True)
+
+        # Assuming the tag_set contains the tag set name or other relevant identifier
+        tags = tag_set['tags']  # Adjust the key based on your actual schema
+
+        execute_query('''
+            INSERT INTO Trends (device_number, plc_ip, subnet, tags, description, cycles, cycle_time, buffer_size)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
+            (system['device_number'], system['plc_ip'], system['subnet'], tags, description, cycles, cycle_time, buffer_size))
+        
+        flash('Trend added successfully!', 'success')
 
         return redirect(url_for('trend_control'))
 
     trends = execute_query('SELECT * FROM Trends', fetchall=True)
-    return render_template('trend_control.html', trends=trends)
+    return render_template('trend_control.html', trends=trends, active_page='trend_control', systems=systems, tag_sets=tag_sets)
+
 
 @app.route('/edit_trend', methods=['GET', 'POST'])
 def edit_trend():
