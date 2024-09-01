@@ -174,48 +174,57 @@ def edit_trend():
     conn = get_db_connection()
     
     if request.method == 'POST':
-        trend_id = request.form['trend_id']
-        device_number = request.form['device_number']
-        tags = request.form['tags']
-        cycles = request.form['cycles']
-        cycle_time = request.form['cycle_time']
-        buffer_size = request.form['buffer_size']
-        description = request.form['description']
+        try:
+            trend_id = request.form['trend_id']
+            device_number = request.form['device_number']
+            tags = request.form['tags']
+            cycles = request.form['cycles']
+            cycle_time = request.form['cycle_time']
+            buffer_size = request.form['buffer_size']
+            description = request.form['description']
 
-        conn.execute('''
-            UPDATE Trends 
-            SET device_number = ?, tags = ?, cycles = ?, cycle_time = ?, buffer_size = ?, description = ?
-            WHERE id = ?''',
-            (device_number, tags, cycles, cycle_time, buffer_size, description, trend_id))
-        conn.commit()
-        conn.close()
-        flash('Trend updated successfully!', 'success')
+            conn.execute('''
+                UPDATE Trends 
+                SET device_number = ?, tags = ?, cycles = ?, cycle_time = ?, buffer_size = ?, description = ?
+                WHERE id = ?''',
+                (device_number, tags, cycles, cycle_time, buffer_size, description, trend_id))
+            conn.commit()
+            flash('Trend updated successfully!', 'success')
+        except Exception as e:
+            app.logger.error(f"Error occurred while updating the trend: {e}")
+            flash('Error occurred while updating the trend!', 'error')
+        finally:
+            conn.close()
         return redirect(url_for('trend_control'))
 
     conn.close()
     flash('Failed to edit; No POST!', 'fail')
     return redirect(url_for('trend_control'))
 
-@app.route('/get_trend/<int:id>', methods=['GET', 'POST'])
+@app.route('/get_trend/<int:id>', methods=['GET'])
 def get_trend(id):
     conn = get_db_connection()
     trend = conn.execute('SELECT * FROM Trends WHERE id = ?', (id,)).fetchone()
-
-    if request.method == 'GET':
-        # Convert the trend Row object to a dictionary
-        trend_dict = dict(trend) if trend else {}
-        return jsonify(trend=trend_dict)
-
     conn.close()
-    return jsonify({'message': 'Invalid request!'})
+
+    if trend:
+        trend_dict = dict(trend)
+        return jsonify(trend=trend_dict)
+    else:
+        return jsonify({'message': 'Trend not found!'}), 404
 
 @app.route('/delete_trend/<int:id>', methods=['POST'])
 def delete_trend(id):
     conn = get_db_connection()
-    conn.execute('DELETE FROM Trends WHERE id = ?', (id,))
-    conn.commit()
-    conn.close()
-    flash('Trend deleted successfully!', 'success')
+    try:
+        conn.execute('DELETE FROM Trends WHERE id = ?', (id,))
+        conn.commit()
+        flash('Trend deleted successfully!', 'success')
+    except Exception as e:
+        app.logger.error(f"Error occurred while deleting the trend: {e}")
+        flash('Error occurred while deleting the trend!', 'error')
+    finally:
+        conn.close()
     return redirect(url_for('trend_control'))
 
 if __name__ == '__main__':
