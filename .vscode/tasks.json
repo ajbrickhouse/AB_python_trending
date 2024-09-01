@@ -1,0 +1,101 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Activate venv",
+        "type": "shell",
+        "command": "source venv/bin/activate",
+        "windows": {
+          "command": ".\\venv\\Scripts\\activate"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "Run Flask",
+        "type": "shell",
+        "command": "flask run",
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "options": {
+          "env": {
+            "FLASK_ENV": "development"
+          }
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "Install Requirements",
+        "type": "shell",
+        "command": "pip install -r requirements.txt",
+        "group": {
+          "kind": "build",
+          "isDefault": false
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "Run Unit Tests",
+        "type": "shell",
+        "command": "pytest",
+        "group": "test",
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        },
+        "problemMatcher": ["$pytest"]
+      },
+      {
+        "label": "Lint Code",
+        "type": "shell",
+        "command": "flake8 .",
+        "group": {
+          "kind": "build",
+          "isDefault": false
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        },
+        "problemMatcher": ["$flake8"]
+      },
+      {
+        "label": "Format Code",
+        "type": "shell",
+        "command": "black .",
+        "group": {
+          "kind": "build",
+          "isDefault": false
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "Run Migrations",
+        "type": "shell",
+        "command": "flask db upgrade",
+        "group": {
+          "kind": "build",
+          "isDefault": false
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        },
+        "problemMatcher": []
+      }
+    ]
+  }
+  
