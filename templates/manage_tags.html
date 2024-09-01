@@ -35,7 +35,7 @@
     </div>
 
     <div class="d-flex justify-content-between align-items-center">
-        <h2>Manage Tags Sets</h2>
+        <h2>Existing Tags Sets</h2>
         <!-- Button trigger modal for adding a new trend -->
         <button type="button" class="btn-link p-0" data-bs-toggle="modal" data-bs-target="#formModal" style="border: none; background: none; box-shadow: none;" onclick="editTagSet('', '', '', 'Add Tag Set')">
             <img class="svg-add" src="{{ url_for('static', filename='images/plus.svg') }}" alt="Plus Icon" width="32" height="32">
@@ -62,15 +62,13 @@
                 </tr>
                 <tr>
                     <th class="text-nowrap" scope="row"><strong>Tags</strong></th>
-                    <td>
-                        <textarea id="{{ tag_set['tag_set_name'] }}" 
-                                  name="{{ tag_set['tag_set_name'] }}" 
-                                  class="form-control" 
-                                  rows="5" 
-                                  spellcheck="false" 
-                                  style="border: none; background: none; box-shadow: none;" 
-                                  required>{{ tag_set['tags'] }}</textarea>
-                    </td>
+                        <td>
+                            <code>
+                                {% for tag in tag_set['tags'].split('\n') %}
+                                    {{ tag.strip() }}<br>
+                                {% endfor %}
+                            </code>
+                        </td>
                     <td rowspan="2" class="align-top text-center">
                         <!-- Edit Button to trigger the Edit Modal -->
                         <button class="btn-link p-0" style="border: none; background: none; box-shadow: none;" data-bs-toggle="modal" data-bs-target="#formModal" onclick="editTagSet({{ tag_set['id'] }}, '{{ tag_set['tag_set_name'] }}', `{{ tag_set['tags'] }}`, 'Edit Tag Set')">
