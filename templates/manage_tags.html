@@ -61,14 +61,13 @@
             </div>
             <div class="d-flex flex-column align-items-start">
                 <!-- Safely pass the tag set data -->
-                <form method="post" action="{{ url_for('delete_tag_set', id=tag_set['id']) }}">
-                    <button type="submit" class="btn-link p-0" style="border: none; background: none; box-shadow: none; margin-bottom: 1cap;">
+                <form method="post" action="{{ url_for('delete_tag_set', id=tag_set['id']) }}" onsubmit="return confirmDelete();">
+                    <button type="submit" class="btn-link p-0" style="border: none; background: none; box-shadow: none;">
                         <img src="{{ url_for('static', filename='images/x-square.svg') }}" alt="Close" width="16" height="16">
                     </button>
                 </form>
-                
                 <button class="btn-link p-0" style="border: none; background: none; box-shadow: none;" data-toggle="modal" data-target="#formModal" onclick="editTagSet({{ tag_set['id'] }}, '{{ tag_set['tag_set_name'] }}', `{{ tag_set['tags'] }}`, 'Edit Tag Set')">
-                    <img src="{{ url_for('static', filename='images/edit.svg') }}" alt="Close" width="16" height="16">
+                    <img src="{{ url_for('static', filename='images/edit.svg') }}" alt="Edit" width="16" height="16">
                 </button>
             </div>
         </li>
@@ -85,6 +84,33 @@
         document.getElementById('tags').value = tags; // tags should be a multiline string
         document.getElementById('exampleModalLongTitle').innerText = modal_title; // tags should be a multiline string
     }
+
+    function confirmDelete() {
+        return confirm('Are you sure you want to delete this tag set? This action cannot be undone.');
+    }
+
+    document.getElementById('tags').addEventListener('paste', function(event) {
+            // Prevent the default paste action
+            event.preventDefault();
+            
+            // Get the pasted text from the clipboard
+            let pastedText = (event.clipboardData || window.clipboardData).getData('text');
+
+            // Replace semicolons, commas, and spaces with new lines
+            let formattedText = pastedText.replace(/[\s;,]+/g, '\n');
+
+            // Split the text by new lines and filter out any empty lines
+            let lines = formattedText.split('\n').filter(line => line.trim() !== '');
+
+            // Get the existing content of the textarea
+            let existingText = document.getElementById('tags').value;
+
+            // Append the processed text to the existing content, adding a new line if necessary
+            let finalText = existingText.trim() ? existingText + '\n' + lines.join('\n') : lines.join('\n');
+
+            // Insert the final text into the textarea
+            document.getElementById('tags').value = finalText;
+        });
 
 </script>
 {% endblock %}

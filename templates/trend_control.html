@@ -234,6 +234,29 @@
 
     }
 
+    document.getElementById('edit_tags').addEventListener('paste', function(event) {
+            // Prevent the default paste action
+            event.preventDefault();
+            
+            // Get the pasted text from the clipboard
+            let pastedText = (event.clipboardData || window.clipboardData).getData('text');
+
+            // Replace semicolons, commas, and spaces with new lines
+            let formattedText = pastedText.replace(/[\s;,]+/g, '\n');
+
+            // Split the text by new lines and filter out any empty lines
+            let lines = formattedText.split('\n').filter(line => line.trim() !== '');
+
+            // Get the existing content of the textarea
+            let existingText = document.getElementById('tags').value;
+
+            // Append the processed text to the existing content, adding a new line if necessary
+            let finalText = existingText.trim() ? existingText + '\n' + lines.join('\n') : lines.join('\n');
+
+            // Insert the final text into the textarea
+            document.getElementById('tags').value = finalText;
+        });
+
     document.getElementById('cycles').addEventListener('input', calculateTrendDuration);
     document.getElementById('cycle_time').addEventListener('input', calculateTrendDuration);
     document.getElementById('buffer_size').addEventListener('input', calculateTrendDuration);
@@ -245,7 +268,6 @@
 
     // Initial calculation for the add modal
     calculateTrendDuration();
-    // calculateEditTrendDuration();
 
 </script>
 {% endblock %}

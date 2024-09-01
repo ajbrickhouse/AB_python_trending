@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, send_from_directory
 import sqlite3
+import os
 
 app = Flask(__name__)
 app.secret_key = 'some_secret_key'
@@ -194,6 +195,11 @@ def delete_trend(id):
         app.logger.error(f"Error occurred while deleting the trend: {e}")
         flash('Error occurred while deleting the trend!', 'error')
     return redirect(url_for('trend_control'))
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 if __name__ == '__main__':
     app.run(debug=True)
